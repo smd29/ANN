@@ -71,3 +71,67 @@ print("Probable Fraud Customer IDs are: ")
 for id in frauds:
   print(id)
 
+"""##Printing the Fraunch Clients
+
+"""
+
+print('Fraud Customer IDs')
+for i in frauds[:, 0]:
+  print(int(i))
+
+"""#Part 2 - Going from Unsupervised to Supervised Deep Learning
+
+##Create Matrix of Features
+"""
+
+customers = dataset.iloc[:, 1:].values
+
+"""## Create Dependent Variable"""
+
+is_fraud = np.zeros(len(dataset))
+for idx in range(len(dataset)):
+  cust_id = dataset.iloc[idx, 0]
+  if cust_id in frauds:
+    is_fraud[idx] = 1
+
+"""## Part 3 ANN
+
+### Feature Scaling
+"""
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+sc.fit_transform(customers)
+
+"""## Building the ANN"""
+
+import tensorflow as tf
+
+"""## Initializing the ANN"""
+
+ann = tf.keras.models.Sequential()
+
+"""### Add input Layer and first hidden layer"""
+
+ann.add(tf.keras.layers.Dense(units=2, activation = 'relu'))
+
+"""## Add output Layers"""
+
+ann.add(tf.keras.layers.Dense(units=1, activation='sigmoid'))
+
+"""## Compiling the ANN"""
+
+ann.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+
+"""##Training the ANN on training set"""
+
+ann.fit(customers, is_fraud, batch_size = 1, epochs = 10)
+
+"""## Prediction"""
+
+y_pred = ann.predict(customers)
+y_pred = np.concatenate((dataset.iloc[:, 0:1].values, y_pred), axis = 1)
+y_pred = y_pred[y_pred[:, 1].argsort()]
+
+print(y_pred)
+
